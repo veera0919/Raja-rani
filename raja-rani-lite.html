@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Raja Rani</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Yeseva+One&family=Figtree:wght@400;600;800&display=swap" media="print" onload="this.media='all'">
+<style>
+:root{
+  --bg:#f6efe4; --surface:#fffaf2; --fg:#2a1d14; --muted:#7a6656; --line:#e2d3bf;
+  --gold:#c8922a; --ruby:#a8323e; --ok:#2f7d4f; --accent:#5b2a86;
+  --display:"Yeseva One",Georgia,serif; --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#1a1410; --surface:#251d17; --fg:#f5ebdd; --muted:#b5a18e; --line:#3d3128;
+  --gold:#e3ad45; --ruby:#e0606b; --ok:#5fbf86; --accent:#b38ae0; color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;
+  padding:max(18px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(32px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+.wrap{max-width:460px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+header{display:flex;align-items:center;justify-content:space-between;gap:10px}
+h1{font-family:var(--display);font-weight:400;font-size:2rem;margin:0;color:var(--ruby)}
+h1 span{color:var(--gold)}
+.conn{font-size:.8rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--line)} .dot.on{background:var(--ok)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.panel h2{font:800 .78rem var(--body);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0}
+label{font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+input{font:1rem var(--body);padding:11px 12px;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--fg);width:100%}
+.btn{font:700 1rem var(--body);padding:13px 14px;border-radius:12px;border:2px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer;width:100%}
+.btn.primary{background:var(--ruby);border-color:var(--ruby);color:#fff}
+.btn.gold{background:var(--gold);border-color:var(--gold);color:#2a1d14}
+.btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:10px} .row>*{flex:1}
+.hint{font-size:.86rem;color:var(--muted);margin:0;line-height:1.45}
+.code{font:400 2.4rem var(--display);letter-spacing:.18em;text-align:center;color:var(--accent)}
+.link{font:600 .9rem ui-monospace,Menlo,monospace;word-break:break-all;background:var(--bg);border-radius:10px;padding:10px;user-select:all}
+/* role card */
+.card{-webkit-user-select:none;user-select:none;border-radius:20px;padding:22px 18px;text-align:center;background:linear-gradient(160deg,var(--surface),var(--bg));border:3px solid var(--gold);display:flex;flex-direction:column;gap:6px;align-items:center}
+.card .em{font-size:3.4rem;line-height:1}
+.card .rn{font-family:var(--display);font-size:2rem}
+.card .rs{font-size:.9rem;color:var(--muted)}
+.card.hidden{border-style:dashed}
+.task{font:800 1.2rem var(--body);text-align:center;text-wrap:balance}
+.task.me{color:var(--ruby)}
+/* players */
+.plist{display:flex;flex-direction:column;gap:8px}
+.pl{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:12px;border:2px solid var(--line);background:var(--surface);font:inherit;color:inherit;text-align:left;width:100%}
+button.pl{cursor:pointer} button.pl:active{transform:scale(.99)}
+.pl.sel{border-color:var(--ruby);background:var(--bg);background:color-mix(in srgb,var(--ruby) 10%,var(--surface))}
+.pl.seeker{border-color:var(--gold);border-width:3px;background:var(--bg);background:color-mix(in srgb,var(--gold) 20%,var(--surface));animation:pulse 1.6s ease-in-out infinite}
+.pl.seeker .nm{font-weight:800}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(200,146,42,.55)}50%{box-shadow:0 0 0 6px rgba(200,146,42,0)}}
+@media (prefers-reduced-motion:reduce){.pl.seeker{animation:none}}
+.pl.out{opacity:.6}
+.pl .nm{flex:1;min-width:0;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pl .tag{font-size:.78rem;color:var(--muted);white-space:nowrap}
+.pl .sc{font-variant-numeric:tabular-nums;font-weight:800;min-width:2.5em;text-align:right}
+.badge{font-size:.72rem;font-weight:800;padding:3px 8px;border-radius:999px;background:var(--bg);color:var(--muted);white-space:nowrap}
+.badge.win{background:var(--bg);background:color-mix(in srgb,var(--ok) 18%,var(--surface));color:var(--ok)}
+.badge.lose{background:var(--bg);background:color-mix(in srgb,var(--ruby) 18%,var(--surface));color:var(--ruby)}
+.badge.gold{background:var(--bg);background:color-mix(in srgb,var(--gold) 22%,var(--surface));color:var(--fg)}
+.log{display:flex;flex-direction:column;gap:6px;font-size:.88rem;max-height:220px;overflow-y:auto}
+.log div{padding:7px 10px;border-radius:9px;background:var(--bg)}
+.log .good{border-left:4px solid var(--ok)} .log .bad{border-left:4px solid var(--ruby)}
+.ladder{display:flex;flex-wrap:wrap;gap:6px}
+.ladder span{font-size:.78rem;padding:4px 8px;border-radius:8px;background:var(--bg);color:var(--muted)}
+.ladder span.cur{background:var(--gold);color:#2a1d14;font-weight:800}
+.ladder span.done{text-decoration:line-through;opacity:.6}
+.flash{position:fixed;left:50%;top:max(16px,env(safe-area-inset-top));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:700;z-index:5;max-width:90vw;text-align:center}
+.ev{position:fixed;inset:0;z-index:20;background:rgba(20,12,8,.55);display:flex;align-items:center;justify-content:center;padding:20px}
+.evcard{background:var(--surface);color:var(--fg);border-radius:20px;padding:22px 18px;max-width:380px;width:100%;text-align:center;border:3px solid var(--gold);display:flex;flex-direction:column;gap:10px;box-shadow:0 12px 40px rgba(0,0,0,.35)}
+.ev.good .evcard{border-color:var(--ok)} .ev.bad .evcard{border-color:var(--ruby)}
+.evemoji{font-size:3rem;line-height:1}
+.evtitle{font-family:var(--display);font-size:1.6rem}
+.evtext{margin:0;font-size:1.05rem;line-height:1.45}
+.evhint{margin:0;font-size:.8rem;color:var(--muted)}
+.flash{z-index:30}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<noscript><p style="padding:16px">Please turn on JavaScript to play.</p></noscript>
+<div class="wrap">
+  <header>
+    <h1>Raja <span>Rani</span></h1>
+    <div class="conn"><span class="dot" id="dot"></span><span id="connText">Not connected</span></div>
+  </header>
+
+  <!-- START -->
+  <section class="panel" id="vStart">
+    <h2>Join the court</h2>
+    <label>Your name<input id="nameInput" maxlength="16" placeholder="e.g. Veera" autocomplete="nickname"></label>
+    <button class="btn primary" id="hostBtn">Create a game</button>
+    <label>Or join with a code<input id="codeInput" maxlength="4" inputmode="numeric" placeholder="4-digit code"></label>
+    <button class="btn" id="joinBtn">Join game</button>
+    <p class="hint" id="startMsg">3 to 8 players. Everyone plays on their own phone.</p>
+  </section>
+
+  <!-- LOBBY -->
+  <section id="vLobby" hidden style="display:flex;flex-direction:column;gap:14px">
+    <div class="panel" id="invitePanel">
+      <h2>Room code</h2>
+      <div class="code" id="codeShow">----</div>
+      <div class="link" id="linkShow"></div>
+      <p class="hint" id="fileNote" hidden>Tell friends this code. They open the Raja Rani file (or your link) and tap Join game.</p>
+      <div class="row"><button class="btn gold" id="shareBtn">Share link</button><button class="btn" id="copyBtn">Copy link</button></div>
+    </div>
+    <div class="panel">
+      <h2 id="lobbyCount">Players</h2>
+      <div class="plist" id="lobbyList"></div>
+      <button class="btn primary" id="startBtn" hidden>Deal the cards</button>
+      <p class="hint" id="lobbyMsg"></p>
+    </div>
+  </section>
+
+  <!-- GAME -->
+  <section id="vGame" hidden style="display:flex;flex-direction:column;gap:14px">
+    <div class="card" id="roleCard"><div class="em" id="roleEm"></div><div class="rn" id="roleName"></div><div class="rs" id="roleSub"></div></div>
+    <div class="task" id="task"></div>
+    <div class="panel">
+      <h2 id="listTitle">Players</h2>
+      <div class="plist" id="gameList"></div>
+      <button class="btn primary" id="pointBtn" hidden disabled>Point</button>
+    </div>
+    <div class="panel"><h2>Chain of command</h2><div class="ladder" id="ladder"></div></div>
+    <div class="panel"><h2 id="logTitle">What happened</h2><div class="log" id="log"></div></div>
+    <button class="btn gold" id="nextBtn" hidden>Next round</button>
+  </section>
+</div>
+<div class="flash" id="flash" hidden></div>
+<div id="evModal" class="ev" hidden role="dialog" aria-live="assertive"><div class="evcard"><div class="evemoji" id="evEmoji"></div><div class="evtitle" id="evTitle"></div><p class="evtext" id="evText"></p><p class="evhint">Remember this — it won't be shown again.</p><button class="btn primary" id="evOk" type="button">Got it</button></div></div>
+<script>window.onerror=function(m,u,l){var d=document.getElementById("diag");if(d){d.hidden=false;d.textContent="Error: "+m+" (line "+l+"). Please send this to the game maker."}};</script>
+<p class="hint" id="diag" hidden style="max-width:460px;margin:12px auto 0;text-align:center"></p>
+
+<script>
+(function(){var urls=["https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js","https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js","https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js"],i=0;
+function next(){if(i>=urls.length)return;var sc=document.createElement("script");sc.src=urls[i++];sc.async=true;sc.onerror=next;document.head.appendChild(sc)}next()})();
+</script>
+<script>
+(function(){
+const PREFIX="rajarani-v1-";
+const ALL=[["Raja","👑","King"],["Rani","👸","Queen"],["Mandhri","📜","Minister"],["Thota Karan","🌱","Gardener"],["Paal Karan","🥛","Milkman"],["Watchman","🔦","Watchman"],["Police","🚓","Police"]];
+const CHOR=["Thirudan","🦹","Thief"];
+const MAXP=ALL.length+1;
+function rolesFor(n){return ALL.slice(0,n-1).concat([CHOR])}
+const $=id=>document.getElementById(id);
+const WEB=/^https?:$/.test(location.protocol);
+const PEER_OPTS={debug:1,config:{iceServers:[
+  {urls:"stun:stun.l.google.com:19302"},
+  {urls:"stun:stun.cloudflare.com:3478"},
+  {urls:["turn:eu-0.turn.peerjs.com:3478","turn:us-0.turn.peerjs.com:3478"],username:"peerjs",credential:"peerjsp"}
+],sdpSemantics:"unified-plan"}};
+function diag(t){const d=$("diag");if(d){d.hidden=false;d.textContent=t}}
+const ls={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
+let myId=ls.get("rr.id"); if(!myId){myId="p"+Math.random().toString(36).slice(2,10);ls.set("rr.id",myId)}
+$("nameInput").value=ls.get("rr.name")||"";
+function myName(){const n=$("nameInput").value.trim().slice(0,16)||"Player";ls.set("rr.name",n);return n}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function flash(t,ms){const f=$("flash");f.textContent=t;f.hidden=false;clearTimeout(flash.t);flash.t=setTimeout(()=>f.hidden=true,ms||2600)}
+function setConn(on,t){$("dot").classList.toggle("on",on);$("connText").textContent=t}
+function show(v){$("vStart").hidden=v!=="start";$("vLobby").hidden=v!=="lobby";$("vGame").hidden=v!=="game"}
+
+let peer=null, isHost=false, hostConn=null, view=null, selected=null, code="";
+
+/* ================= HOST ENGINE ================= */
+const G={phase:"lobby",players:[],roles:{},inRound:[],out:[],seeker:null,roleList:[],log:[],recap:[],round:0,loser:null,rajaPublic:false,notice:{},seq:0};
+// players: {id,name,score,conn,online}
+function P(id){return G.players.find(p=>p.id===id)}
+function nameOf(id){const p=P(id);return p?p.name:"?"}
+function remaining(){return G.inRound.filter(id=>!G.out.includes(id))}
+// public log (no names after the Raja reveal) + private recap with names, shown when the round ends
+function addLog(text,kind,recap){G.log.unshift({text,kind:kind||""});if(G.log.length>40)G.log.pop();G.recap.unshift({text:recap||text,kind:kind||""})}
+function announce(emoji,title,text,kind){G.seq++;G.event={n:G.seq,emoji,title,text,kind}}
+function notify(id,text){G.seq++;G.notice[id]={n:G.seq,text}}
+
+function hostHello(id,name,conn){
+  let p=P(id);
+  if(p){p.name=name;p.conn=conn;p.online=true}
+  else{
+    if(G.players.length>=MAXP){conn&&conn.send({t:"full"});return}
+    p={id,name,score:0,conn,online:true};G.players.push(p);
+    if(G.phase!=="lobby")addLog(name+" joined. They'll get a card next round.");
+  }
+  broadcast();
+}
+function hostLeave(id){
+  const p=P(id);if(!p)return;
+  if(G.phase==="lobby"){G.players=G.players.filter(x=>x.id!==id)}
+  else{p.online=false;p.conn=null}
+  broadcast();
+}
+function hostRemove(id){if(id===myId)return;const p=P(id);if(!p)return;try{p.conn&&p.conn.send({t:"removed"});p.conn&&p.conn.close()}catch(e){}G.players=G.players.filter(x=>x.id!==id);
+  if(G.phase==="play"&&G.inRound.includes(id)){addLog(p.name+" was removed. Starting a fresh round.");dealRound();return}
+  broadcast()}
+function dealRound(){
+  const ids=G.players.map(p=>p.id);
+  if(ids.length<3){G.phase="lobby";broadcast();return}
+  G.roleList=rolesFor(ids.length);
+  const idx=ids.map((_,i)=>i);
+  for(let i=idx.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[idx[i],idx[j]]=[idx[j],idx[i]]}
+  G.roles={};ids.forEach((id,i)=>G.roles[id]=idx[i]);
+  G.inRound=ids;G.out=[];G.loser=null;G.round++;G.phase="play";G.notice={};G.event=null;
+  G.seeker=ids.find(id=>G.roles[id]===0);G.rajaPublic=true;
+  G.log=[];G.recap=[];addLog("Round "+G.round+": "+nameOf(G.seeker)+" is the Raja 👑 and must find the Rani.");
+  broadcast();
+}
+function endRound(loser,why,whyRecap){
+  G.loser=loser;G.phase="end";
+  const n=G.inRound.length;
+  G.out.forEach((id,i)=>{const p=P(id);if(p)p.score+=n-1-i});
+  const rest=n-1-G.out.length; // survivors who weren't safe yet share the next tier
+  G.inRound.forEach(id=>{if(id!==loser&&!G.out.includes(id)){const p=P(id);if(p)p.score+=rest}});
+  addLog(why,"bad",whyRecap);
+}
+function hostPick(by,target){
+  if(G.phase!=="play"||by!==G.seeker||by===target)return;
+  if(!G.inRound.includes(target))return;
+  const sr=G.roles[by], want=sr+1, rl=G.roleList, R=rl[sr][0], W=rl[want][0];
+  G.rajaPublic=false;
+  if(G.out.includes(target)){
+    // pointed at someone already found -> the searcher is out and loses
+    notify(by,"❌ "+nameOf(target)+" was already found. You're eliminated!");
+    announce("💥","Eliminated!",nameOf(by)+" ("+R+") chose "+nameOf(target)+" as the "+W+" — but "+nameOf(target)+" was already found. "+nameOf(by)+" is eliminated and loses the round.","bad");
+    endRound(by,"❌ The "+R+" pointed at a player who was already found — eliminated! "+nameOf(by)+" loses the round.",
+      "❌ "+nameOf(by)+" ("+R+") pointed at "+nameOf(target)+", who was already found — eliminated!");
+  }else if(G.roles[target]===want){
+    G.out.push(by);G.seeker=target;
+    notify(by,"✅ Correct! "+nameOf(target)+" is the "+W+". You're safe — keep it secret!");
+    announce("✅","Correct!",nameOf(by)+" ("+R+") chose "+nameOf(target)+" — correct, "+nameOf(target)+" is the "+W+" "+rl[want][1]+"! "+nameOf(by)+" is safe and out of the hunt."+(remaining().length>1?" "+nameOf(target)+" now finds the "+rl[want+1][0]+".":""),"good");
+    if(remaining().length===1){
+      endRound(target,"✅ The "+R+" found the "+W+". "+nameOf(target)+" is the last one left and loses the round.",
+        "✅ "+nameOf(by)+" ("+R+") found "+nameOf(target)+" — the "+W+". "+nameOf(target)+" is last and loses.");
+    }else{
+      notify(target,"👀 You've been found! You're the "+W+" "+rl[want][1]+". Now find the "+rl[want+1][0]+".");
+      addLog("✅ The "+R+" found the "+W+"! Now the "+W+" must secretly find the "+rl[want+1][0]+".","good",
+        "✅ "+nameOf(by)+" ("+R+") found "+nameOf(target)+" — the "+W+". "+nameOf(by)+" is safe (#"+G.out.length+").");
+    }
+  }else{
+    const tr=G.roles[target];
+    G.roles[target]=sr;G.roles[by]=tr;G.seeker=target;
+    notify(by,"❌ Wrong! You swapped cards with "+nameOf(target)+". You're now the "+rl[tr][0]+" "+rl[tr][1]+".");
+    notify(target,"🔄 You were picked! Cards swapped — you're now the "+R+" "+rl[sr][1]+". Find the "+W+".");
+    announce("🔄","Wrong pick — cards swapped!",nameOf(by)+" ("+R+") chose "+nameOf(target)+" as the "+W+", but "+nameOf(target)+" is not the "+W+". "+nameOf(by)+" swapped cards with "+nameOf(target)+" — "+nameOf(target)+" is now the "+R+" "+rl[sr][1]+" and must find the "+W+".","bad");
+    addLog("❌ The "+R+" guessed wrong — cards swapped. The new "+R+" must find the "+W+".","bad",
+      "❌ "+nameOf(by)+" ("+R+") pointed at "+nameOf(target)+" — wrong. Swapped: "+nameOf(target)+" became the "+R+".");
+  }
+  broadcast();
+}
+function viewFor(id){
+  const rl=G.roleList, sr=G.seeker!=null?G.roles[G.seeker]:null, end=G.phase==="end";
+  return {
+    phase:G.phase, code, round:G.round, hostId:myId,
+    players:G.players.map(p=>{
+      const inR=G.inRound.includes(p.id)&&G.phase!=="lobby";
+      const pub=end||p.id===id;
+      const chooser=G.phase==="play"&&p.id===G.seeker;
+      const showRole=pub||chooser;
+      return {id:p.id,name:p.name,score:p.score,online:p.online,inRound:inR,
+        out:pub&&G.out.includes(p.id),place:pub?G.out.indexOf(p.id)+1:0,
+        seeker:chooser,loser:end&&p.id===G.loser,
+        role:inR&&showRole?G.roles[p.id]:null};
+    }),
+    amSeeker:G.phase==="play"&&id===G.seeker, seekerRole:sr, roleList:rl,
+    log:end?G.recap:G.log, loser:end?G.loser:null,
+    myRole:G.inRound.includes(id)?G.roles[id]:null, notice:G.notice[id]||null, event:G.event||null
+  };
+}
+function broadcast(){
+  G.players.forEach(p=>{if(p.id===myId)return;if(p.conn&&p.conn.open){try{p.conn.send({t:"view",v:viewFor(p.id)})}catch(e){}}});
+  view=viewFor(myId);render();
+}
+
+/* ================= NETWORK ================= */
+function needPeer(){if(typeof Peer==="undefined"){$("startMsg").textContent="Still loading… wait a few seconds and tap again. If it keeps failing, check your internet and reload.";return false}return true}
+function startHost(){
+  if(!needPeer())return;
+  isHost=true;code=String(Math.floor(1000+Math.random()*9000));
+  setConn(false,"Starting…");
+  peer=new Peer(PREFIX+code,PEER_OPTS);
+  peer.on("open",()=>{
+    G.players=[{id:myId,name:myName(),score:0,conn:null,online:true}];
+    const link=location.origin+location.pathname+"#"+code;
+    $("codeShow").textContent=code;$("linkShow").textContent=link;$("shareBtn").hidden=!navigator.share||!WEB;
+    setConn(true,"Hosting "+code);broadcast();
+  });
+  peer.on("connection",c=>{
+    let pid=null;
+    c.on("error",e=>diag("A player's connection failed: "+(e&&e.type||e)));
+    c.on("data",d=>{
+      if(!d||typeof d!=="object")return;
+      if(d.t==="hello"&&typeof d.id==="string"){pid=d.id.slice(0,20);hostHello(pid,String(d.name||"Player").slice(0,16),c)}
+      if(d.t==="pick"&&pid)hostPick(pid,String(d.target||""));
+    });
+    c.on("close",()=>{if(pid){const p=P(pid);if(p&&p.conn===c)hostLeave(pid)}});
+  });
+  peer.on("disconnected",()=>{setConn(false,"Reconnecting…");try{peer.reconnect()}catch(e){}});
+  peer.on("error",e=>{
+    if(e.type==="unavailable-id"){peer.destroy();startHost();return}
+    if(e.type==="peer-unavailable")return;
+    setConn(false,"Connection problem");diag("Connection problem: "+e.type+". Check the internet connection and keep this page open.");
+  });
+}
+function startJoin(c){
+  c=String(c||"").replace(/\D/g,"");
+  if(c.length!==4){$("startMsg").textContent="Enter the 4-digit code from the host.";return}
+  if(!needPeer())return;
+  isHost=false;code=c;setConn(false,"Connecting…");$("startMsg").textContent="Connecting to room "+c+"…";
+  peer=new Peer(PEER_OPTS);
+  peer.on("open",()=>connectHost());
+  peer.on("disconnected",()=>{try{peer.reconnect()}catch(e){}});
+  peer.on("error",e=>{
+    if(e.type==="peer-unavailable"){$("startMsg").textContent="No game found with code "+code+". Check the code, and make sure the host keeps the page open.";setConn(false,"Not connected");if(view)retry();return}
+    setConn(false,"Connection problem");diag("Connection problem: "+e.type+". Check the internet connection and try again.");
+  });
+}
+let retryT=null;
+function retry(){clearTimeout(retryT);retryT=setTimeout(()=>{if(!hostConn||!hostConn.open)connectHost()},3000)}
+function connectHost(){
+  if(!peer||peer.destroyed)return;
+  if(peer.disconnected){try{peer.reconnect()}catch(e){}setTimeout(connectHost,1500);return}
+  const c=peer.connect(PREFIX+code,{reliable:true,serialization:"json"});
+  const to=setTimeout(()=>{if(!c.open){try{c.close()}catch(e){}diag("Still connecting to the host… If this keeps happening, put both phones on the same network (same Wi-Fi or both on mobile data) and try again.");retry()}},12000);
+  c.on("error",e=>diag("Connection error: "+(e&&e.type||e)));
+  c.on("open",()=>{clearTimeout(to);$("diag").hidden=true;hostConn=c;setConn(true,"Room "+code);c.send({t:"hello",id:myId,name:myName()})});
+  c.on("data",d=>{
+    if(!d)return;
+    if(d.t==="view"){view=d.v;render()}
+    if(d.t==="full"){$("startMsg").textContent="That room is full ("+MAXP+" players).";show("start")}
+    if(d.t==="removed"){view=null;hostConn=null;show("start");$("startMsg").textContent="The host removed you from the room."}
+  });
+  c.on("close",()=>{if(hostConn===c){hostConn=null;setConn(false,"Lost host – retrying…");retry()}});
+}
+function sendPick(target){if(isHost)hostPick(myId,target);else if(hostConn&&hostConn.open)hostConn.send({t:"pick",target})}
+
+/* ================= RENDER ================= */
+let lastLogTop="", lastNotice=null, lastEvent=null;
+function showEvent(e){const m=$("evModal");$("evEmoji").textContent=e.emoji;$("evTitle").textContent=e.title;$("evText").textContent=e.text;m.className="ev "+(e.kind||"");m.hidden=false;clearTimeout(showEvent.t);showEvent.t=setTimeout(()=>m.hidden=true,9000);try{navigator.vibrate&&navigator.vibrate(100)}catch(x){}}
+function render(){
+  if(!view)return;
+  const v=view, me=v.players.find(p=>p.id===myId);
+  if(v.phase==="lobby"){show("lobby");renderLobby(v);return}
+  show("game");
+  const rl=v.roleList, amIn=v.myRole!=null, amSeeker=!!v.amSeeker;
+  if(v.event&&v.event.n!==lastEvent){lastEvent=v.event.n;showEvent(v.event)}
+  if(v.notice&&v.notice.n!==lastNotice){lastNotice=v.notice.n;flash(v.notice.text,6000)}
+  // role card
+  const card=$("roleCard");
+  if(!amIn){card.classList.add("hidden");$("roleEm").textContent="⏳";$("roleName").textContent="Watching";$("roleSub").textContent="You'll get a card next round"}
+  else{const r=rl[v.myRole];card.classList.remove("hidden");$("roleEm").textContent=r[1];$("roleName").textContent=r[0];$("roleSub").textContent=r[2]+" · keep it secret"+(me&&me.out&&v.phase==="play"?" · you're safe ✅":"")}
+  // task
+  const t=$("task");t.classList.toggle("me",amSeeker);
+  if(v.phase==="end"){
+    const L=v.players.find(p=>p.id===v.loser);
+    t.textContent=v.loser===myId?"You're the last one left. You lose this round 😅":(L?L.name:"Someone")+" loses this round!";
+  }else{
+    const sr=v.seekerRole, want=rl[sr+1], S=v.players.find(p=>p.seeker);
+    if(amSeeker)t.textContent="You are the "+rl[sr][0]+". Find the "+want[0]+" "+want[1]+"!";
+    else if(me&&me.out)t.textContent="You're safe ✅. The "+rl[sr][0]+" is now looking for the "+want[0]+".";
+    else t.textContent=(S?"👉 "+S.name+" (the "+rl[sr][0]+" "+rl[sr][1]+")":"The "+rl[sr][0])+" is choosing the "+want[0]+".";
+  }
+  // list
+  const list=$("gameList");list.innerHTML="";
+  $("listTitle").textContent=amSeeker?"Who is the "+rl[v.seekerRole+1][0]+"? Careful: pointing at someone already found eliminates you":v.phase==="end"?"Results – round "+v.round:"Players – round "+v.round;
+  const ps=v.players.slice().sort((a,b)=>v.phase==="end"?b.score-a.score:((b.seeker?1:0)-(a.seeker?1:0)));
+  if(selected&&!v.players.some(p=>p.id===selected&&p.inRound&&p.id!==myId))selected=null;
+  if(!amSeeker)selected=null;
+  ps.forEach(p=>{
+    const pickable=amSeeker&&p.inRound&&p.id!==myId;
+    const el=document.createElement(pickable?"button":"div");
+    el.className="pl"+(p.seeker&&v.phase==="play"?" seeker":"")+(p.out?" out":"")+(selected===p.id?" sel":"");
+    let badge="";
+    if(!p.inRound)badge='<span class="badge">Next round</span>';
+    else if(p.loser)badge='<span class="badge lose">Lost</span>';
+    else if(p.out&&p.id===myId&&v.phase==="play")badge='<span class="badge win">Safe</span>';
+    else if(p.out)badge='<span class="badge win">Safe #'+p.place+'</span>';
+    else if(p.seeker&&v.phase==="play")badge='<span class="badge gold">👉 Choosing now</span>';
+    const roleTxt=p.role!=null?rl[p.role][1]+" "+rl[p.role][0]:(p.inRound?"Hidden":"");
+    el.innerHTML='<span class="nm">'+esc(p.name)+(p.id===myId?" (you)":"")+(p.online?"":" · offline")+'</span><span class="tag">'+esc(roleTxt)+'</span>'+badge+'<span class="sc">'+p.score+'</span>';
+    if(pickable)el.onclick=()=>{selected=p.id;render()};
+    list.appendChild(el);
+  });
+  const pb=$("pointBtn");pb.hidden=!amSeeker;
+  const sp=v.players.find(p=>p.id===selected);
+  pb.disabled=!sp;pb.textContent=sp?"Point at "+sp.name:"Tap a player first";
+  // ladder
+  const lad=$("ladder");lad.innerHTML="";
+  rl.forEach((r,i)=>{const s=document.createElement("span");s.textContent=r[1]+" "+r[0];
+    if(v.phase==="play"&&i===v.seekerRole+1)s.className="cur";else if(v.phase==="end"||(v.phase==="play"&&i<=v.seekerRole))s.className="done";lad.appendChild(s)});
+  // log
+  $("logTitle").textContent=v.phase==="end"?"Round recap (all revealed)":"What happened";
+  const lg=$("log");lg.innerHTML=v.log.map(l=>'<div class="'+l.kind+'">'+esc(l.text)+'</div>').join("");
+  if(v.log[0]&&v.log[0].text!==lastLogTop){lastLogTop=v.log[0].text;if(navigator.vibrate&&amSeeker)try{navigator.vibrate(120)}catch(e){}}
+  $("nextBtn").hidden=!(isHost&&v.phase==="end");
+}
+function renderLobby(v){
+  $("invitePanel").hidden=false;
+  $("codeShow").textContent=v.code;
+  if(!$("linkShow").textContent)$("linkShow").textContent=location.origin+location.pathname+"#"+v.code;
+  $("shareBtn").hidden=!navigator.share||!WEB;
+  $("linkShow").hidden=!WEB;$("copyBtn").hidden=!WEB;
+  $("fileNote").hidden=WEB;
+  $("lobbyCount").textContent="Players ("+v.players.length+"/"+MAXP+")";
+  const list=$("lobbyList");list.innerHTML="";
+  v.players.forEach(p=>{
+    const el=document.createElement("div");el.className="pl";
+    el.innerHTML='<span class="nm">'+esc(p.name)+(p.id===myId?" (you)":"")+'</span>'+(p.id===v.hostId?'<span class="badge gold">Host</span>':'')+'<span class="sc">'+p.score+'</span>';
+    if(isHost&&p.id!==myId){const x=document.createElement("button");x.className="badge";x.style.border="0";x.style.cursor="pointer";x.textContent="Remove";x.onclick=()=>hostRemove(p.id);el.appendChild(x)}
+    list.appendChild(el);
+  });
+  const n=v.players.length;
+  $("startBtn").hidden=!isHost;$("startBtn").disabled=n<3;
+  $("lobbyMsg").textContent=isHost?(n<3?"Need at least 3 players to start. Share the code!":"Everyone in? Deal the cards."):"Waiting for the host to deal the cards…";
+}
+
+/* ================= WIRING ================= */
+$("evOk").onclick=()=>{$("evModal").hidden=true};
+$("hostBtn").onclick=()=>{myName();startHost()};
+$("joinBtn").onclick=()=>{myName();startJoin($("codeInput").value)};
+$("startBtn").onclick=()=>{if(isHost)dealRound()};
+$("nextBtn").onclick=()=>{if(isHost)dealRound()};
+$("pointBtn").onclick=()=>{if(selected){const s=selected;selected=null;sendPick(s)}};
+$("copyBtn").onclick=async()=>{const t=$("linkShow").textContent;try{await navigator.clipboard.writeText(t);flash("Link copied")}catch(e){const r=document.createRange();r.selectNodeContents($("linkShow"));const s=getSelection();s.removeAllRanges();s.addRange(r)}};
+$("shareBtn").onclick=()=>{navigator.share({title:"Raja Rani",text:"Join my Raja Rani game! Code "+code,url:$("linkShow").textContent}).catch(()=>{})};
+document.addEventListener("visibilitychange",()=>{
+  if(document.visibilityState!=="visible"||!peer||peer.destroyed)return;
+  if(peer.disconnected){try{peer.reconnect()}catch(e){}}
+  if(!isHost&&view&&(!hostConn||!hostConn.open))retry();
+  if(isHost)broadcast();
+});
+window.addEventListener("pageshow",e=>{if(e.persisted&&peer&&peer.disconnected){try{peer.reconnect()}catch(x){}}});
+window.addEventListener("beforeunload",e=>{if(isHost&&G.players.length>1){e.preventDefault();e.returnValue=""}});
+const h=location.hash.replace("#","");
+if(/^\d{4}$/.test(h)){$("codeInput").value=h;$("startMsg").textContent="Enter your name and tap Join game.";$("hostBtn").classList.remove("primary");$("joinBtn").classList.add("primary")}
+show("start");
+})();
+</script>
+</body>
+</html>
